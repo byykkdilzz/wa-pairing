@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WA Pairing</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 400px; margin: 40px auto; padding: 0 16px; background: #f9f9f9; color: #333; }
+    h2 { text-align: center; }
+    input, button { font-size: 16px; padding: 12px; width: 100%; box-sizing: border-box; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; }
+    button { background: #25d366; color: white; border: none; font-weight: bold; cursor: pointer; }
+    button:active { background: #1da851; }
+    pre { background: #111; color: #0f0; padding: 12px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; font-size: 14px; }
+    .code { font-size: 32px; letter-spacing: 4px; font-weight: bold; text-align: center; margin: 20px 0; color: #128c7e; }
+  </style>
+</head>
+<body>
+  <h2>Tautkan Perangkat WA</h2>
+  <form id="f">
+    <input id="phone" type="tel" placeholder="6281234567890" autocomplete="off" required />
+    <button type="submit">Minta Kode</button>
+  </form>
+  <div class="code" id="code"></div>
+  <pre id="out">Masukkan nomor (awali 62, tanpa + atau 0).</pre>
+
+  <script>
+    const f = document.getElementById('f');
+    f.onsubmit = async (e) => {
+      e.preventDefault();
+      document.getElementById('code').textContent = '';
+      document.getElementById('out').textContent = 'Meminta kode...';
+      try {
+        const r = await fetch('/pair', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ phone: document.getElementById('phone').value.trim() }),
+        });
+        const j = await r.json();
+        if (j.ok) {
+          document.getElementById('code').textContent = j.code;
+          document.getElementById('out').textContent = 'Buka WA di HP > Perangkat Tertaut > Tautkan Perangkat > Tautkan dengan nomor telepon. Masukkan kode di atas.';
+        } else {
+          document.getElementById('out').textContent = 'Gagal: ' + j.error;
+        }
+      } catch (err) {
+        document.getElementById('out').textContent = 'Error: ' + err.message;
+      }
+    };
+  </script>
+</body>
+</html>
